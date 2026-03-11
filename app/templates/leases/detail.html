@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Lease #{{ lease.id }}{% endblock %}
+{% block breadcrumb %}<a href="{{ url_for('leases.list_leases') }}">Leases</a> / Lease #{{ lease.id }}{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+  <h1><i class="bi bi-file-earmark-text me-2"></i>Lease #{{ lease.id }}</h1>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('leases.edit', id=lease.id) }}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-pencil me-1"></i>Edit
+    </a>
+    {% if lease.status == 'active' %}
+    <form action="{{ url_for('leases.terminate', id=lease.id) }}" method="post"
+          onsubmit="return confirm('Terminate this lease?');">
+      <button class="btn btn-warning btn-sm"><i class="bi bi-x-circle me-1"></i>Terminate</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card stat-card p-3">
+      <div class="fw-semibold mb-2">Lease Details</div>
+      <table class="table table-sm table-borderless mb-0">
+        <tr><td class="text-muted" style="width:45%">Status</td>
+            <td><span class="badge badge-{{ lease.status }}">{{ lease.status|capitalize }}</span></td></tr>
+        <tr><td class="text-muted">Tenant</td>
+            <td><a href="{{ url_for('tenants.detail', id=lease.tenant_id) }}">{{ lease.tenant.full_name }}</a></td></tr>
+        <tr><td class="text-muted">Unit</td>
+            <td>{{ lease.unit.unit_number }} — {{ lease.unit.property.name }}</td></tr>
+        <tr><td class="text-muted">Start Date</td><td>{{ lease.start_date }}</td></tr>
+        <tr><td class="text-muted">End Date</td><td>{{ lease.end_date }}</td></tr>
+        <tr><td class="text-muted">Monthly Rent</td><td>${{ "%.2f"|format(lease.rent_amount) }}</td></tr>
+        <tr><td class="text-muted">Security Deposit</td><td>${{ "%.2f"|format(lease.security_deposit) }}</td></tr>
+        {% if lease.notes %}
+        <tr><td class="text-muted">Notes</td><td>{{ lease.notes }}</td></tr>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card stat-card">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-cash-coin me-1 text-success"></i>Payment History ({{ lease.payments|length }})
+        <a href="{{ url_for('payments.new') }}" class="btn btn-success btn-sm float-end py-0 px-2">
+          <i class="bi bi-plus"></i> Record
+        </a>
+      </div>
+      <div class="card-body p-0">
+        {% if lease.payments %}
+        <table class="table table-sm mb-0">
+          <thead><tr><th>Date</th><th>Amount</th><th>Type</th><th>Status</th></tr></thead>
+          <tbody>
+          {% for payment in lease.payments|sort(attribute='payment_date', reverse=True) %}
+          <tr>
+            <td>{{ payment.payment_date }}</td>
+            <td>${{ "%.2f"|format(payment.amount) }}</td>
+            <td>{{ payment.payment_type|replace('_',' ')|capitalize }}</td>
+            <td><span class="badge badge-{{ payment.status }}">{{ payment.status|capitalize }}</span></td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p class="text-muted p-3 mb-0">No payments recorded.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

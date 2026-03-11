@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Request #{{ request.id }}{% endblock %}
+{% block breadcrumb %}<a href="{{ url_for('maintenance.list_requests') }}">Maintenance</a> / Request #{{ request.id }}{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+  <h1><i class="bi bi-wrench me-2"></i>{{ request.title }}</h1>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('maintenance.edit', id=request.id) }}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-pencil me-1"></i>Edit
+    </a>
+    {% if request.status not in ['completed', 'cancelled'] %}
+    <form action="{{ url_for('maintenance.complete', id=request.id) }}" method="post">
+      <button class="btn btn-success btn-sm"><i class="bi bi-check-circle me-1"></i>Mark Complete</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-7">
+    <div class="card stat-card p-3">
+      <div class="fw-semibold mb-2">Request Details</div>
+      <table class="table table-sm table-borderless mb-0">
+        <tr><td class="text-muted" style="width:40%">Status</td>
+            <td><span class="badge badge-{{ request.status }}">{{ request.status|replace('_',' ')|capitalize }}</span></td></tr>
+        <tr><td class="text-muted">Priority</td>
+            <td><span class="priority-{{ request.priority }} fw-semibold">{{ request.priority|capitalize }}</span></td></tr>
+        <tr><td class="text-muted">Unit</td>
+            <td>{{ request.unit.unit_number }} — {{ request.unit.property.name }}</td></tr>
+        <tr><td class="text-muted">Reported By</td><td>{{ request.reported_by or '—' }}</td></tr>
+        <tr><td class="text-muted">Assigned To</td><td>{{ request.assigned_to or '—' }}</td></tr>
+        <tr><td class="text-muted">Date Reported</td><td>{{ request.created_at }}</td></tr>
+        {% if request.completed_at %}
+        <tr><td class="text-muted">Completed On</td><td>{{ request.completed_at }}</td></tr>
+        {% endif %}
+        <tr><td class="text-muted">Est. Cost</td><td>${{ "%.2f"|format(request.estimated_cost) }}</td></tr>
+        <tr><td class="text-muted">Actual Cost</td><td>${{ "%.2f"|format(request.actual_cost) }}</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="col-md-5">
+    <div class="card stat-card p-3">
+      <div class="fw-semibold mb-2">Description</div>
+      <p class="mb-0">{{ request.description }}</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

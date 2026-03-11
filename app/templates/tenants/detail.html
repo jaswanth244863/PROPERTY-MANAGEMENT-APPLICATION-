@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}{{ tenant.full_name }}{% endblock %}
+{% block breadcrumb %}<a href="{{ url_for('tenants.list_tenants') }}">Tenants</a> / {{ tenant.full_name }}{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+  <h1><i class="bi bi-person-circle me-2"></i>{{ tenant.full_name }}</h1>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('tenants.edit', id=tenant.id) }}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-pencil me-1"></i>Edit
+    </a>
+    <form action="{{ url_for('tenants.delete', id=tenant.id) }}" method="post"
+          onsubmit="return confirm('Delete this tenant?');">
+      <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash me-1"></i>Delete</button>
+    </form>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-5">
+    <div class="card stat-card p-3">
+      <div class="fw-semibold mb-2">Personal Details</div>
+      <table class="table table-sm table-borderless mb-0">
+        <tr><td class="text-muted" style="width:45%">Email</td><td>{{ tenant.email }}</td></tr>
+        <tr><td class="text-muted">Phone</td><td>{{ tenant.phone }}</td></tr>
+        {% if tenant.date_of_birth %}
+        <tr><td class="text-muted">Date of Birth</td><td>{{ tenant.date_of_birth }}</td></tr>
+        {% endif %}
+        {% if tenant.emergency_contact_name %}
+        <tr><td class="text-muted">Emergency Contact</td><td>{{ tenant.emergency_contact_name }}</td></tr>
+        <tr><td class="text-muted">Emergency Phone</td><td>{{ tenant.emergency_contact_phone }}</td></tr>
+        {% endif %}
+        <tr><td class="text-muted">Member Since</td><td>{{ tenant.created_at }}</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="col-md-7">
+    <div class="card stat-card mb-3">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-file-text me-1"></i>Leases ({{ tenant.leases|length }})
+      </div>
+      <div class="card-body p-0">
+        {% if tenant.leases %}
+        <table class="table table-sm mb-0">
+          <thead><tr><th>Unit</th><th>Start</th><th>End</th><th>Rent</th><th>Status</th></tr></thead>
+          <tbody>
+          {% for lease in tenant.leases %}
+          <tr>
+            <td>
+              <a href="{{ url_for('leases.detail', id=lease.id) }}">
+                {{ lease.unit.unit_number }} ({{ lease.unit.property.name }})
+              </a>
+            </td>
+            <td>{{ lease.start_date }}</td>
+            <td>{{ lease.end_date }}</td>
+            <td>${{ "%.0f"|format(lease.rent_amount) }}/mo</td>
+            <td><span class="badge badge-{{ lease.status }}">{{ lease.status|capitalize }}</span></td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p class="text-muted p-3 mb-0">No leases found.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
