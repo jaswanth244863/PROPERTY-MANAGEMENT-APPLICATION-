@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Tenant – PMS{% endblock %}
+{% block page_title %}{{ action }} Tenant{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2>{{ '👤 Edit Tenant' if action == 'Edit' else '👤 Add New Tenant' }}</h2>
+  <a href="{{ url_for('tenants') }}" class="btn btn-outline">← Back to Tenants</a>
+</div>
+
+<div class="card" style="max-width:700px;">
+  <div class="card-header"><h5>Tenant Information</h5></div>
+  <div class="card-body">
+    <form method="post">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="first_name">First Name *</label>
+          <input type="text" id="first_name" name="first_name" class="form-control" required
+                 value="{{ tenant.first_name if tenant else '' }}" />
+        </div>
+
+        <div class="form-group">
+          <label for="last_name">Last Name *</label>
+          <input type="text" id="last_name" name="last_name" class="form-control" required
+                 value="{{ tenant.last_name if tenant else '' }}" />
+        </div>
+
+        <div class="form-group form-full">
+          <label for="email">Email Address *</label>
+          <input type="email" id="email" name="email" class="form-control" required
+                 value="{{ tenant.email if tenant else '' }}" />
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input type="text" id="phone" name="phone" class="form-control"
+                 value="{{ tenant.phone if tenant else '' }}" placeholder="555-0100" />
+        </div>
+
+        <div class="form-group">
+          <label for="id_number">ID / Passport Number</label>
+          <input type="text" id="id_number" name="id_number" class="form-control"
+                 value="{{ tenant.id_number if tenant else '' }}" />
+        </div>
+      </div>
+
+      <div style="margin-top:20px; display:flex; gap:10px;">
+        <button type="submit" class="btn btn-primary">💾 {{ action }} Tenant</button>
+        <a href="{{ url_for('tenants') }}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

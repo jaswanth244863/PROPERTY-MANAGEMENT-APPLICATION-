@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Leases – PMS{% endblock %}
+{% block page_title %}Leases{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2>📄 Leases</h2>
+  <a href="{{ url_for('add_lease') }}" class="btn btn-primary">+ Create Lease</a>
+</div>
+
+<div class="filter-bar">
+  <a href="{{ url_for('leases') }}" class="{{ 'active' if not status_filter else '' }}">All</a>
+  <a href="{{ url_for('leases', status='Active') }}" class="{{ 'active' if status_filter == 'Active' else '' }}">Active</a>
+  <a href="{{ url_for('leases', status='Expired') }}" class="{{ 'active' if status_filter == 'Expired' else '' }}">Expired</a>
+  <a href="{{ url_for('leases', status='Terminated') }}" class="{{ 'active' if status_filter == 'Terminated' else '' }}">Terminated</a>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Property</th>
+          <th>Tenant</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Rent/Month</th>
+          <th>Deposit</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for l in leases %}
+        <tr>
+          <td>{{ l.id }}</td>
+          <td><a href="{{ url_for('property_detail', prop_id=l.property.id) }}" style="color:#3b82f6;">{{ l.property.name }}</a></td>
+          <td><a href="{{ url_for('tenant_detail', tenant_id=l.tenant.id) }}" style="color:#3b82f6;">{{ l.tenant.full_name }}</a></td>
+          <td>{{ l.start_date.strftime('%b %d, %Y') }}</td>
+          <td>{{ l.end_date.strftime('%b %d, %Y') }}</td>
+          <td><strong>${{ "%.2f"|format(l.rent_amount) }}</strong></td>
+          <td>${{ "%.2f"|format(l.security_deposit) }}</td>
+          <td>
+            {% if l.status == 'Active' %}<span class="badge badge-success">Active</span>
+            {% elif l.status == 'Expired' %}<span class="badge badge-secondary">Expired</span>
+            {% else %}<span class="badge badge-danger">Terminated</span>{% endif %}
+          </td>
+          <td>
+            <div class="action-btns">
+              <a href="{{ url_for('lease_detail', lease_id=l.id) }}" class="btn btn-outline btn-xs">View</a>
+              <a href="{{ url_for('edit_lease', lease_id=l.id) }}" class="btn btn-warning btn-xs">Edit</a>
+              {% if l.status == 'Active' %}
+              <form method="post" action="{{ url_for('terminate_lease', lease_id=l.id) }}" style="display:inline;" onsubmit="return confirm('Terminate this lease?')">
+                <button type="submit" class="btn btn-danger btn-xs">Terminate</button>
+              </form>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr class="empty-row"><td colspan="9">No leases found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

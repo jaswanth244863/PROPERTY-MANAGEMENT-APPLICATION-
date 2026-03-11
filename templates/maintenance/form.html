@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Maintenance Request – PMS{% endblock %}
+{% block page_title %}{{ action }} Maintenance Request{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2>{{ '🔧 Edit Request' if action == 'Edit' else '🔧 New Maintenance Request' }}</h2>
+  <a href="{{ url_for('maintenance') }}" class="btn btn-outline">← Back to Maintenance</a>
+</div>
+
+<div class="card" style="max-width:800px;">
+  <div class="card-header"><h5>Request Details</h5></div>
+  <div class="card-body">
+    <form method="post">
+      <div class="form-grid">
+        <div class="form-group form-full">
+          <label for="property_id">Property *</label>
+          <select id="property_id" name="property_id" class="form-control" required>
+            <option value="">– Select Property –</option>
+            {% for p in properties %}
+              <option value="{{ p.id }}" {{ 'selected' if req and req.property_id == p.id else '' }}>
+                {{ p.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group form-full">
+          <label for="title">Title *</label>
+          <input type="text" id="title" name="title" class="form-control" required
+                 value="{{ req.title if req else '' }}" placeholder="Brief title of the issue" />
+        </div>
+
+        <div class="form-group form-full">
+          <label for="description">Description *</label>
+          <textarea id="description" name="description" class="form-control" required
+                    placeholder="Describe the maintenance issue in detail…">{{ req.description if req else '' }}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="priority">Priority</label>
+          <select id="priority" name="priority" class="form-control">
+            {% for pri in ['Low', 'Medium', 'High', 'Urgent'] %}
+              <option value="{{ pri }}" {{ 'selected' if req and req.priority == pri else ('selected' if not req and pri == 'Medium' else '') }}>{{ pri }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="status">Status</label>
+          <select id="status" name="status" class="form-control">
+            {% for s in ['Open', 'In Progress', 'Completed', 'Cancelled'] %}
+              <option value="{{ s }}" {{ 'selected' if req and req.status == s else ('selected' if not req and s == 'Open' else '') }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group form-full">
+          <label for="requested_by">Requested By</label>
+          <input type="text" id="requested_by" name="requested_by" class="form-control"
+                 value="{{ req.requested_by if req else '' }}" placeholder="Tenant name or Management" />
+        </div>
+      </div>
+
+      <div style="margin-top:20px; display:flex; gap:10px;">
+        <button type="submit" class="btn btn-primary">💾 {{ action }} Request</button>
+        <a href="{{ url_for('maintenance') }}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

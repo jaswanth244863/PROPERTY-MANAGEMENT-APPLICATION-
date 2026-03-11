@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Properties – PMS{% endblock %}
+{% block page_title %}Properties{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2>🏢 Properties</h2>
+  <a href="{{ url_for('add_property') }}" class="btn btn-primary">+ Add Property</a>
+</div>
+
+<div class="filter-bar">
+  <a href="{{ url_for('properties') }}" class="{{ 'active' if not status_filter else '' }}">All</a>
+  <a href="{{ url_for('properties', status='Available') }}" class="{{ 'active' if status_filter == 'Available' else '' }}">Available</a>
+  <a href="{{ url_for('properties', status='Occupied') }}" class="{{ 'active' if status_filter == 'Occupied' else '' }}">Occupied</a>
+  <a href="{{ url_for('properties', status='Maintenance') }}" class="{{ 'active' if status_filter == 'Maintenance' else '' }}">Maintenance</a>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Address</th>
+          <th>Type</th>
+          <th>Units</th>
+          <th>Rent/Month</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in properties %}
+        <tr>
+          <td>{{ p.id }}</td>
+          <td><a href="{{ url_for('property_detail', prop_id=p.id) }}" style="color:#3b82f6;font-weight:500;">{{ p.name }}</a></td>
+          <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ p.address }}</td>
+          <td>{{ p.property_type }}</td>
+          <td>{{ p.units }}</td>
+          <td><strong>${{ "%.2f"|format(p.rent_amount) }}</strong></td>
+          <td>
+            {% if p.status == 'Available' %}
+              <span class="badge badge-success">Available</span>
+            {% elif p.status == 'Occupied' %}
+              <span class="badge badge-info">Occupied</span>
+            {% else %}
+              <span class="badge badge-warning">Maintenance</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="action-btns">
+              <a href="{{ url_for('property_detail', prop_id=p.id) }}" class="btn btn-outline btn-xs">View</a>
+              <a href="{{ url_for('edit_property', prop_id=p.id) }}" class="btn btn-warning btn-xs">Edit</a>
+              <form method="post" action="{{ url_for('delete_property', prop_id=p.id) }}" style="display:inline;" onsubmit="return confirm('Delete this property?')">
+                <button type="submit" class="btn btn-danger btn-xs">Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr class="empty-row"><td colspan="8">No properties found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

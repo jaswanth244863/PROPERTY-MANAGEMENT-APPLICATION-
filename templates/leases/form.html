@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Lease – PMS{% endblock %}
+{% block page_title %}{{ action }} Lease{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2>{{ '📄 Edit Lease' if action == 'Edit' else '📄 Create New Lease' }}</h2>
+  <a href="{{ url_for('leases') }}" class="btn btn-outline">← Back to Leases</a>
+</div>
+
+<div class="card" style="max-width:800px;">
+  <div class="card-header"><h5>Lease Details</h5></div>
+  <div class="card-body">
+    <form method="post">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="property_id">Property *</label>
+          <select id="property_id" name="property_id" class="form-control" required>
+            <option value="">– Select Property –</option>
+            {% for p in properties %}
+              <option value="{{ p.id }}" {{ 'selected' if lease and lease.property_id == p.id else '' }}>
+                {{ p.name }} ({{ p.status }})
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="tenant_id">Tenant *</label>
+          <select id="tenant_id" name="tenant_id" class="form-control" required>
+            <option value="">– Select Tenant –</option>
+            {% for t in tenants %}
+              <option value="{{ t.id }}" {{ 'selected' if lease and lease.tenant_id == t.id else '' }}>
+                {{ t.full_name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="start_date">Start Date *</label>
+          <input type="date" id="start_date" name="start_date" class="form-control" required
+                 value="{{ lease.start_date.isoformat() if lease else '' }}" />
+        </div>
+
+        <div class="form-group">
+          <label for="end_date">End Date *</label>
+          <input type="date" id="end_date" name="end_date" class="form-control" required
+                 value="{{ lease.end_date.isoformat() if lease else '' }}" />
+        </div>
+
+        <div class="form-group">
+          <label for="rent_amount">Monthly Rent ($) *</label>
+          <input type="number" id="rent_amount" name="rent_amount" class="form-control"
+                 step="0.01" min="0" required
+                 value="{{ lease.rent_amount if lease else '' }}" placeholder="0.00" />
+        </div>
+
+        <div class="form-group">
+          <label for="security_deposit">Security Deposit ($)</label>
+          <input type="number" id="security_deposit" name="security_deposit" class="form-control"
+                 step="0.01" min="0"
+                 value="{{ lease.security_deposit if lease else '0' }}" placeholder="0.00" />
+        </div>
+
+        <div class="form-group">
+          <label for="status">Status</label>
+          <select id="status" name="status" class="form-control">
+            {% for s in ['Active', 'Expired', 'Terminated'] %}
+              <option value="{{ s }}" {{ 'selected' if lease and lease.status == s else '' }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group form-full">
+          <label for="notes">Notes</label>
+          <textarea id="notes" name="notes" class="form-control"
+                    placeholder="Optional lease notes…">{{ lease.notes if lease else '' }}</textarea>
+        </div>
+      </div>
+
+      <div style="margin-top:20px; display:flex; gap:10px;">
+        <button type="submit" class="btn btn-primary">💾 {{ action }} Lease</button>
+        <a href="{{ url_for('leases') }}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
