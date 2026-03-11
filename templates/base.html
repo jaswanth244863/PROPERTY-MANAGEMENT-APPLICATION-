@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Property Management System{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+<div class="wrapper">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">🏠</span>
+      <span class="brand-name">PropManager</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Main</div>
+      <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' else '' }}">
+        <span class="nav-icon">📊</span><span>Dashboard</span>
+      </a>
+
+      <div class="nav-section-title">Management</div>
+      <a href="{{ url_for('properties') }}" class="{{ 'active' if request.endpoint in ['properties','add_property','edit_property','property_detail'] else '' }}">
+        <span class="nav-icon">🏢</span><span>Properties</span>
+      </a>
+      <a href="{{ url_for('tenants') }}" class="{{ 'active' if request.endpoint in ['tenants','add_tenant','edit_tenant','tenant_detail'] else '' }}">
+        <span class="nav-icon">👥</span><span>Tenants</span>
+      </a>
+      <a href="{{ url_for('leases') }}" class="{{ 'active' if request.endpoint in ['leases','add_lease','edit_lease','lease_detail'] else '' }}">
+        <span class="nav-icon">📄</span><span>Leases</span>
+      </a>
+
+      <div class="nav-section-title">Finance &amp; Operations</div>
+      <a href="{{ url_for('payments') }}" class="{{ 'active' if request.endpoint in ['payments','add_payment','edit_payment'] else '' }}">
+        <span class="nav-icon">💰</span><span>Payments</span>
+      </a>
+      <a href="{{ url_for('maintenance') }}" class="{{ 'active' if request.endpoint in ['maintenance','add_maintenance','edit_maintenance'] else '' }}">
+        <span class="nav-icon">🔧</span><span>Maintenance</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main content -->
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-title">{% block page_title %}Property Management System{% endblock %}</div>
+      <div class="topbar-right">
+        <span style="font-size:0.85rem; color:#64748b;">🏠 PropManager v1.0</span>
+      </div>
+    </header>
+
+    <main class="page-body">
+      <!-- Flash messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-messages">
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">
+                {% if category == 'success' %}✅{% elif category == 'danger' %}❌{% elif category == 'warning' %}⚠️{% else %}ℹ️{% endif %}
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+      &copy; 2024 Property Management System &mdash; Built with Flask &amp; SQLite
+    </footer>
+  </div>
+</div>
+</body>
+</html>

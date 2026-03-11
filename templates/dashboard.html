@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – Property Management System{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2>Overview</h2>
+  <span style="font-size:0.85rem;color:#64748b;">📅 Today: {{ now().strftime('%B %d, %Y') if now else '' }}</span>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+  <div class="stat-card blue">
+    <div class="stat-icon">🏢</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ total_properties }}</div>
+      <div class="stat-label">Total Properties</div>
+    </div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-icon">✅</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ available_properties }}</div>
+      <div class="stat-label">Available</div>
+    </div>
+  </div>
+  <div class="stat-card orange">
+    <div class="stat-icon">🔑</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ occupied_properties }}</div>
+      <div class="stat-label">Occupied</div>
+    </div>
+  </div>
+  <div class="stat-card purple">
+    <div class="stat-icon">👥</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ total_tenants }}</div>
+      <div class="stat-label">Tenants</div>
+    </div>
+  </div>
+  <div class="stat-card teal">
+    <div class="stat-icon">📄</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ active_leases }}</div>
+      <div class="stat-label">Active Leases</div>
+    </div>
+  </div>
+  <div class="stat-card indigo">
+    <div class="stat-icon">💰</div>
+    <div class="stat-info">
+      <div class="stat-value">${{ "%.0f"|format(monthly_revenue) }}</div>
+      <div class="stat-label">This Month Revenue</div>
+    </div>
+  </div>
+  <div class="stat-card red">
+    <div class="stat-icon">🔧</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ open_maintenance }}</div>
+      <div class="stat-label">Open Requests</div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent activity -->
+<div class="two-col">
+  <!-- Recent Payments -->
+  <div class="card">
+    <div class="card-header">
+      <h5>💰 Recent Payments</h5>
+      <a href="{{ url_for('payments') }}" class="btn btn-outline btn-sm">View All</a>
+    </div>
+    <div class="card-body" style="padding:0;">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Tenant</th>
+              <th>Amount</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in recent_payments %}
+            <tr>
+              <td>{{ p.lease.tenant.full_name }}</td>
+              <td><strong>${{ "%.2f"|format(p.amount) }}</strong></td>
+              <td>{{ p.payment_date.strftime('%b %d, %Y') }}</td>
+              <td>
+                {% if p.status == 'Paid' %}
+                  <span class="badge badge-success">Paid</span>
+                {% elif p.status == 'Pending' %}
+                  <span class="badge badge-warning">Pending</span>
+                {% else %}
+                  <span class="badge badge-danger">Overdue</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr class="empty-row"><td colspan="4">No payments recorded yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Maintenance -->
+  <div class="card">
+    <div class="card-header">
+      <h5>🔧 Maintenance Requests</h5>
+      <a href="{{ url_for('maintenance') }}" class="btn btn-outline btn-sm">View All</a>
+    </div>
+    <div class="card-body" style="padding:0;">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Priority</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in recent_requests %}
+            <tr>
+              <td>{{ r.title }}</td>
+              <td>
+                <span class="priority-{{ r.priority | lower }}">{{ r.priority }}</span>
+              </td>
+              <td>
+                {% if r.status == 'Open' %}
+                  <span class="badge badge-danger">Open</span>
+                {% elif r.status == 'In Progress' %}
+                  <span class="badge badge-warning">In Progress</span>
+                {% elif r.status == 'Completed' %}
+                  <span class="badge badge-success">Completed</span>
+                {% else %}
+                  <span class="badge badge-secondary">{{ r.status }}</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr class="empty-row"><td colspan="3">No maintenance requests.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick actions -->
+<div class="card" style="margin-top:20px;">
+  <div class="card-header"><h5>⚡ Quick Actions</h5></div>
+  <div class="card-body" style="display:flex;gap:12px;flex-wrap:wrap;">
+    <a href="{{ url_for('add_property') }}" class="btn btn-primary">🏢 Add Property</a>
+    <a href="{{ url_for('add_tenant') }}" class="btn btn-success">👤 Add Tenant</a>
+    <a href="{{ url_for('add_lease') }}" class="btn btn-warning">📄 Create Lease</a>
+    <a href="{{ url_for('add_payment') }}" class="btn btn-secondary">💳 Record Payment</a>
+    <a href="{{ url_for('add_maintenance') }}" class="btn btn-outline">🔧 New Request</a>
+  </div>
+</div>
+{% endblock %}

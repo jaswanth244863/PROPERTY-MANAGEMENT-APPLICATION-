@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}{{ property.name }} – PMS{% endblock %}
+{% block page_title %}Property Detail{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2>🏢 {{ property.name }}</h2>
+  <div style="display:flex;gap:8px;">
+    <a href="{{ url_for('edit_property', prop_id=property.id) }}" class="btn btn-warning">Edit</a>
+    <a href="{{ url_for('properties') }}" class="btn btn-outline">← Back</a>
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="card">
+    <div class="card-header"><h5>Property Info</h5></div>
+    <div class="card-body">
+      <div class="detail-row"><div class="detail-label">Address</div><div class="detail-value">{{ property.address }}</div></div>
+      <div class="detail-row"><div class="detail-label">Type</div><div class="detail-value">{{ property.property_type }}</div></div>
+      <div class="detail-row"><div class="detail-label">Units</div><div class="detail-value">{{ property.units }}</div></div>
+      <div class="detail-row"><div class="detail-label">Rent / Month</div><div class="detail-value">${{ "%.2f"|format(property.rent_amount) }}</div></div>
+      <div class="detail-row">
+        <div class="detail-label">Status</div>
+        <div class="detail-value">
+          {% if property.status == 'Available' %}<span class="badge badge-success">Available</span>
+          {% elif property.status == 'Occupied' %}<span class="badge badge-info">Occupied</span>
+          {% else %}<span class="badge badge-warning">Maintenance</span>{% endif %}
+        </div>
+      </div>
+      {% if property.description %}
+      <div class="detail-row"><div class="detail-label">Description</div><div class="detail-value">{{ property.description }}</div></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h5>Active Leases ({{ property.leases|selectattr('status','equalto','Active')|list|length }})</h5></div>
+    <div class="card-body" style="padding:0;">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tenant</th><th>Period</th><th>Rent</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for l in property.leases %}
+            <tr>
+              <td><a href="{{ url_for('lease_detail', lease_id=l.id) }}" style="color:#3b82f6;">{{ l.tenant.full_name }}</a></td>
+              <td>{{ l.start_date.strftime('%b %Y') }} – {{ l.end_date.strftime('%b %Y') }}</td>
+              <td>${{ "%.2f"|format(l.rent_amount) }}</td>
+              <td>
+                {% if l.status == 'Active' %}<span class="badge badge-success">Active</span>
+                {% elif l.status == 'Expired' %}<span class="badge badge-secondary">Expired</span>
+                {% else %}<span class="badge badge-danger">Terminated</span>{% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr class="empty-row"><td colspan="4">No leases.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+  <div class="card-header">
+    <h5>🔧 Maintenance Requests</h5>
+    <a href="{{ url_for('add_maintenance') }}" class="btn btn-outline btn-sm">+ New</a>
+  </div>
+  <div class="card-body" style="padding:0;">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Title</th><th>Priority</th><th>Status</th><th>Requested</th></tr></thead>
+        <tbody>
+          {% for r in property.maintenance_requests %}
+          <tr>
+            <td>{{ r.title }}</td>
+            <td><span class="priority-{{ r.priority|lower }}">{{ r.priority }}</span></td>
+            <td>
+              {% if r.status == 'Open' %}<span class="badge badge-danger">Open</span>
+              {% elif r.status == 'In Progress' %}<span class="badge badge-warning">In Progress</span>
+              {% elif r.status == 'Completed' %}<span class="badge badge-success">Completed</span>
+              {% else %}<span class="badge badge-secondary">{{ r.status }}</span>{% endif %}
+            </td>
+            <td>{{ r.created_at.strftime('%b %d, %Y') }}</td>
+          </tr>
+          {% else %}
+          <tr class="empty-row"><td colspan="4">No maintenance requests.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

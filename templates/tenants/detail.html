@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{{ tenant.full_name }} – PMS{% endblock %}
+{% block page_title %}Tenant Detail{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2>👤 {{ tenant.full_name }}</h2>
+  <div style="display:flex;gap:8px;">
+    <a href="{{ url_for('edit_tenant', tenant_id=tenant.id) }}" class="btn btn-warning">Edit</a>
+    <a href="{{ url_for('tenants') }}" class="btn btn-outline">← Back</a>
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="card">
+    <div class="card-header"><h5>Contact Info</h5></div>
+    <div class="card-body">
+      <div class="detail-row"><div class="detail-label">Full Name</div><div class="detail-value">{{ tenant.full_name }}</div></div>
+      <div class="detail-row"><div class="detail-label">Email</div><div class="detail-value">{{ tenant.email }}</div></div>
+      <div class="detail-row"><div class="detail-label">Phone</div><div class="detail-value">{{ tenant.phone or '—' }}</div></div>
+      <div class="detail-row"><div class="detail-label">ID Number</div><div class="detail-value">{{ tenant.id_number or '—' }}</div></div>
+      <div class="detail-row"><div class="detail-label">Member Since</div><div class="detail-value">{{ tenant.created_at.strftime('%B %d, %Y') }}</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h5>Lease History ({{ tenant.leases|length }})</h5></div>
+    <div class="card-body" style="padding:0;">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Property</th><th>Period</th><th>Rent</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for l in tenant.leases %}
+            <tr>
+              <td><a href="{{ url_for('property_detail', prop_id=l.property.id) }}" style="color:#3b82f6;">{{ l.property.name }}</a></td>
+              <td>{{ l.start_date.strftime('%b %Y') }} – {{ l.end_date.strftime('%b %Y') }}</td>
+              <td>${{ "%.2f"|format(l.rent_amount) }}</td>
+              <td>
+                {% if l.status == 'Active' %}<span class="badge badge-success">Active</span>
+                {% elif l.status == 'Expired' %}<span class="badge badge-secondary">Expired</span>
+                {% else %}<span class="badge badge-danger">Terminated</span>{% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr class="empty-row"><td colspan="4">No leases.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

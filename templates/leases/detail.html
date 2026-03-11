@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Lease #{{ lease.id }} – PMS{% endblock %}
+{% block page_title %}Lease Detail{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2>📄 Lease #{{ lease.id }}</h2>
+  <div style="display:flex;gap:8px;">
+    <a href="{{ url_for('edit_lease', lease_id=lease.id) }}" class="btn btn-warning">Edit</a>
+    {% if lease.status == 'Active' %}
+    <form method="post" action="{{ url_for('terminate_lease', lease_id=lease.id) }}" style="display:inline;" onsubmit="return confirm('Terminate this lease?')">
+      <button type="submit" class="btn btn-danger">Terminate</button>
+    </form>
+    {% endif %}
+    <a href="{{ url_for('leases') }}" class="btn btn-outline">← Back</a>
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="card">
+    <div class="card-header"><h5>Lease Info</h5></div>
+    <div class="card-body">
+      <div class="detail-row"><div class="detail-label">Property</div><div class="detail-value"><a href="{{ url_for('property_detail', prop_id=lease.property.id) }}" style="color:#3b82f6;">{{ lease.property.name }}</a></div></div>
+      <div class="detail-row"><div class="detail-label">Tenant</div><div class="detail-value"><a href="{{ url_for('tenant_detail', tenant_id=lease.tenant.id) }}" style="color:#3b82f6;">{{ lease.tenant.full_name }}</a></div></div>
+      <div class="detail-row"><div class="detail-label">Period</div><div class="detail-value">{{ lease.start_date.strftime('%B %d, %Y') }} – {{ lease.end_date.strftime('%B %d, %Y') }}</div></div>
+      <div class="detail-row"><div class="detail-label">Monthly Rent</div><div class="detail-value">${{ "%.2f"|format(lease.rent_amount) }}</div></div>
+      <div class="detail-row"><div class="detail-label">Security Deposit</div><div class="detail-value">${{ "%.2f"|format(lease.security_deposit) }}</div></div>
+      <div class="detail-row">
+        <div class="detail-label">Status</div>
+        <div class="detail-value">
+          {% if lease.status == 'Active' %}<span class="badge badge-success">Active</span>
+          {% elif lease.status == 'Expired' %}<span class="badge badge-secondary">Expired</span>
+          {% else %}<span class="badge badge-danger">Terminated</span>{% endif %}
+        </div>
+      </div>
+      {% if lease.notes %}
+      <div class="detail-row"><div class="detail-label">Notes</div><div class="detail-value">{{ lease.notes }}</div></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h5>💰 Payment History ({{ lease.payments|length }})</h5>
+      <a href="{{ url_for('add_payment') }}" class="btn btn-outline btn-sm">+ Record</a>
+    </div>
+    <div class="card-body" style="padding:0;">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for pay in lease.payments | sort(attribute='payment_date', reverse=True) %}
+            <tr>
+              <td>{{ pay.payment_date.strftime('%b %d, %Y') }}</td>
+              <td><strong>${{ "%.2f"|format(pay.amount) }}</strong></td>
+              <td>{{ pay.payment_method or '–' }}</td>
+              <td>
+                {% if pay.status == 'Paid' %}<span class="badge badge-success">Paid</span>
+                {% elif pay.status == 'Pending' %}<span class="badge badge-warning">Pending</span>
+                {% else %}<span class="badge badge-danger">Overdue</span>{% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr class="empty-row"><td colspan="4">No payments recorded.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if lease.payments %}
+      <div style="padding:12px 16px;font-size:0.9rem;font-weight:600;color:#1e293b;border-top:1px solid #f1f5f9;">
+        Total Collected: ${{ "%.2f"|format(lease.payments|selectattr('status','equalto','Paid')|sum(attribute='amount')) }}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

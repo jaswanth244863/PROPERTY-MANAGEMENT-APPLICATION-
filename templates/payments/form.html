@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Payment – PMS{% endblock %}
+{% block page_title %}{{ action }} Payment{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2>{{ '💰 Edit Payment' if action == 'Edit' else '💰 Record Payment' }}</h2>
+  <a href="{{ url_for('payments') }}" class="btn btn-outline">← Back to Payments</a>
+</div>
+
+<div class="card" style="max-width:700px;">
+  <div class="card-header"><h5>Payment Details</h5></div>
+  <div class="card-body">
+    <form method="post">
+      <div class="form-grid">
+        <div class="form-group form-full">
+          <label for="lease_id">Lease (Tenant – Property) *</label>
+          <select id="lease_id" name="lease_id" class="form-control" required>
+            <option value="">– Select Lease –</option>
+            {% for l in leases %}
+              <option value="{{ l.id }}" {{ 'selected' if payment and payment.lease_id == l.id else '' }}>
+                #{{ l.id }} – {{ l.tenant.full_name }} @ {{ l.property.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="amount">Amount ($) *</label>
+          <input type="number" id="amount" name="amount" class="form-control"
+                 step="0.01" min="0" required
+                 value="{{ payment.amount if payment else '' }}" placeholder="0.00" />
+        </div>
+
+        <div class="form-group">
+          <label for="payment_date">Payment Date *</label>
+          <input type="date" id="payment_date" name="payment_date" class="form-control" required
+                 value="{{ payment.payment_date.isoformat() if payment else today }}" />
+        </div>
+
+        <div class="form-group">
+          <label for="payment_method">Payment Method</label>
+          <select id="payment_method" name="payment_method" class="form-control">
+            {% set methods = ['Cash', 'Bank Transfer', 'Check', 'Online', 'Credit Card', 'Other'] %}
+            <option value="">– Select –</option>
+            {% for m in methods %}
+              <option value="{{ m }}" {{ 'selected' if payment and payment.payment_method == m else '' }}>{{ m }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="status">Status</label>
+          <select id="status" name="status" class="form-control">
+            {% for s in ['Paid', 'Pending', 'Overdue'] %}
+              <option value="{{ s }}" {{ 'selected' if payment and payment.status == s else '' }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group form-full">
+          <label for="notes">Notes</label>
+          <textarea id="notes" name="notes" class="form-control"
+                    placeholder="Optional notes…">{{ payment.notes if payment else '' }}</textarea>
+        </div>
+      </div>
+
+      <div style="margin-top:20px; display:flex; gap:10px;">
+        <button type="submit" class="btn btn-primary">💾 {{ action }} Payment</button>
+        <a href="{{ url_for('payments') }}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
