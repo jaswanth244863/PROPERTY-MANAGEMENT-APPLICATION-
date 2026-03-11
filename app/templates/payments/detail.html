@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Payment #{{ payment.id }}{% endblock %}
+{% block breadcrumb %}<a href="{{ url_for('payments.list_payments') }}">Payments</a> / Payment #{{ payment.id }}{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+  <h1><i class="bi bi-receipt me-2"></i>Payment #{{ payment.id }}</h1>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('payments.edit', id=payment.id) }}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-pencil me-1"></i>Edit
+    </a>
+    <form action="{{ url_for('payments.delete', id=payment.id) }}" method="post"
+          onsubmit="return confirm('Delete this payment?');">
+      <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash me-1"></i>Delete</button>
+    </form>
+  </div>
+</div>
+<div class="card stat-card p-3" style="max-width:480px;">
+  <table class="table table-sm table-borderless mb-0">
+    <tr><td class="text-muted" style="width:45%">Status</td>
+        <td><span class="badge badge-{{ payment.status }}">{{ payment.status|capitalize }}</span></td></tr>
+    <tr><td class="text-muted">Amount</td><td class="fw-bold fs-5">${{ "%.2f"|format(payment.amount) }}</td></tr>
+    <tr><td class="text-muted">Tenant</td>
+        <td>{% if payment.lease %}<a href="{{ url_for('tenants.detail', id=payment.lease.tenant_id) }}">{{ payment.lease.tenant.full_name }}</a>{% else %}—{% endif %}</td></tr>
+    <tr><td class="text-muted">Unit</td>
+        <td>{% if payment.lease %}{{ payment.lease.unit.unit_number }} ({{ payment.lease.unit.property.name }}){% else %}—{% endif %}</td></tr>
+    <tr><td class="text-muted">Payment Date</td><td>{{ payment.payment_date }}</td></tr>
+    <tr><td class="text-muted">Due Date</td><td>{{ payment.due_date }}</td></tr>
+    <tr><td class="text-muted">Type</td><td>{{ payment.payment_type|replace('_',' ')|capitalize }}</td></tr>
+    <tr><td class="text-muted">Method</td><td>{{ payment.payment_method|replace('_',' ')|capitalize if payment.payment_method else '—' }}</td></tr>
+    {% if payment.notes %}
+    <tr><td class="text-muted">Notes</td><td>{{ payment.notes }}</td></tr>
+    {% endif %}
+  </table>
+</div>
+{% endblock %}

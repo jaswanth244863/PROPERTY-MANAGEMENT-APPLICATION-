@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Properties{% endblock %}
+{% block breadcrumb %}Properties{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+  <h1><i class="bi bi-buildings me-2"></i>Properties</h1>
+  <a href="{{ url_for('properties.new') }}" class="btn btn-primary">
+    <i class="bi bi-plus-circle me-1"></i>Add Property
+  </a>
+</div>
+
+{% if properties %}
+<div class="row g-3">
+  {% for prop in properties %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card stat-card h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <h5 class="card-title mb-1">{{ prop.name }}</h5>
+            <div class="text-muted small"><i class="bi bi-geo-alt me-1"></i>{{ prop.address }}, {{ prop.city }}, {{ prop.state }} {{ prop.zip_code }}</div>
+          </div>
+          <span class="badge bg-secondary">{{ prop.property_type|capitalize }}</span>
+        </div>
+        <hr class="my-2"/>
+        <div class="d-flex gap-3 small">
+          <span><i class="bi bi-door-open me-1 text-success"></i>{{ prop.available_units }} available</span>
+          <span><i class="bi bi-person-check me-1 text-primary"></i>{{ prop.occupied_units }} occupied</span>
+          <span><i class="bi bi-layers me-1 text-secondary"></i>{{ prop.num_units }} units</span>
+        </div>
+        {% if prop.description %}
+        <p class="card-text text-muted small mt-2 mb-0">{{ prop.description[:80] }}{% if prop.description|length > 80 %}...{% endif %}</p>
+        {% endif %}
+      </div>
+      <div class="card-footer bg-white border-top-0 d-flex gap-2">
+        <a href="{{ url_for('properties.detail', id=prop.id) }}" class="btn btn-outline-primary btn-sm">
+          <i class="bi bi-eye me-1"></i>View
+        </a>
+        <a href="{{ url_for('properties.edit', id=prop.id) }}" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-pencil me-1"></i>Edit
+        </a>
+        <form action="{{ url_for('properties.delete', id=prop.id) }}" method="post" class="ms-auto"
+              onsubmit="return confirm('Delete {{ prop.name }}?');">
+          <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card stat-card text-center p-5">
+  <i class="bi bi-buildings display-4 text-muted mb-3"></i>
+  <h5 class="text-muted">No properties yet</h5>
+  <a href="{{ url_for('properties.new') }}" class="btn btn-primary mt-2">Add Your First Property</a>
+</div>
+{% endif %}
+{% endblock %}

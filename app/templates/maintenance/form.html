@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit Request' if request else 'New Request' }}{% endblock %}
+{% block breadcrumb %}<a href="{{ url_for('maintenance.list_requests') }}">Maintenance</a> / {{ 'Edit' if request else 'New' }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>{{ 'Edit Maintenance Request' if request else 'New Maintenance Request' }}</h1>
+</div>
+<div class="card stat-card p-4" style="max-width:640px;">
+  <form method="post">
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Unit *</label>
+      <select name="unit_id" class="form-select" required>
+        <option value="">Select unit…</option>
+        {% for unit in units %}
+        <option value="{{ unit.id }}"
+          {{ 'selected' if request and request.unit_id == unit.id else '' }}>
+          {{ unit.property.name }} — Unit {{ unit.unit_number }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Title *</label>
+      <input type="text" name="title" class="form-control" required
+             value="{{ request.title if request else '' }}" placeholder="Brief description of issue">
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Description *</label>
+      <textarea name="description" class="form-control" rows="4" required
+        >{{ request.description if request else '' }}</textarea>
+    </div>
+    <div class="row g-2 mb-3">
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Priority</label>
+        <select name="priority" class="form-select">
+          {% for p in ['low', 'medium', 'high', 'urgent'] %}
+          <option value="{{ p }}" {{ 'selected' if request and request.priority == p else ('' if p != 'medium' else 'selected') }}>
+            {{ p|capitalize }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      {% if request %}
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Status</label>
+        <select name="status" class="form-select">
+          {% for s in ['open', 'in_progress', 'completed', 'cancelled'] %}
+          <option value="{{ s }}" {{ 'selected' if request.status == s else '' }}>
+            {{ s|replace('_',' ')|capitalize }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+    </div>
+    <div class="row g-2 mb-3">
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Reported By</label>
+        <input type="text" name="reported_by" class="form-control"
+               value="{{ request.reported_by if request else '' }}">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Assigned To</label>
+        <input type="text" name="assigned_to" class="form-control"
+               value="{{ request.assigned_to if request else '' }}">
+      </div>
+    </div>
+    <div class="row g-2 mb-3">
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Estimated Cost ($)</label>
+        <input type="number" name="estimated_cost" class="form-control" min="0" step="0.01"
+               value="{{ request.estimated_cost if request else 0 }}">
+      </div>
+      {% if request %}
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Actual Cost ($)</label>
+        <input type="number" name="actual_cost" class="form-control" min="0" step="0.01"
+               value="{{ request.actual_cost if request else 0 }}">
+      </div>
+      {% endif %}
+    </div>
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-primary">
+        <i class="bi bi-check-circle me-1"></i>{{ 'Update Request' if request else 'Submit Request' }}
+      </button>
+      <a href="{{ url_for('maintenance.list_requests') }}" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

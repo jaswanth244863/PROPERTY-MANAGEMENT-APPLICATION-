@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}{{ property.name }}{% endblock %}
+{% block breadcrumb %}<a href="{{ url_for('properties.list_properties') }}">Properties</a> / {{ property.name }}{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+  <h1><i class="bi bi-building me-2"></i>{{ property.name }}</h1>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('properties.new_unit', property_id=property.id) }}" class="btn btn-success btn-sm">
+      <i class="bi bi-plus-circle me-1"></i>Add Unit
+    </a>
+    <a href="{{ url_for('properties.edit', id=property.id) }}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-pencil me-1"></i>Edit
+    </a>
+    <form action="{{ url_for('properties.delete', id=property.id) }}" method="post"
+          onsubmit="return confirm('Delete this property and all its units?');">
+      <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash me-1"></i>Delete</button>
+    </form>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="card stat-card p-3">
+      <div class="fw-semibold mb-2">Property Details</div>
+      <table class="table table-sm table-borderless mb-0">
+        <tr><td class="text-muted" style="width:40%">Address</td><td>{{ property.address }}</td></tr>
+        <tr><td class="text-muted">City/State/Zip</td><td>{{ property.city }}, {{ property.state }} {{ property.zip_code }}</td></tr>
+        <tr><td class="text-muted">Type</td><td>{{ property.property_type|capitalize }}</td></tr>
+        <tr><td class="text-muted">Total Units</td><td>{{ property.num_units }}</td></tr>
+        <tr><td class="text-muted">Available</td><td><span class="badge badge-available">{{ property.available_units }}</span></td></tr>
+        <tr><td class="text-muted">Occupied</td><td><span class="badge badge-occupied">{{ property.occupied_units }}</span></td></tr>
+        {% if property.description %}
+        <tr><td class="text-muted">Notes</td><td>{{ property.description }}</td></tr>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card stat-card p-3 h-100 d-flex flex-column justify-content-center align-items-center">
+      <i class="bi bi-buildings display-1 text-primary opacity-25"></i>
+      <div class="text-muted mt-2">Added {{ property.created_at }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="card stat-card">
+  <div class="card-header bg-white fw-semibold">
+    <i class="bi bi-door-open me-1"></i>Units ({{ property.units|length }})
+  </div>
+  <div class="card-body p-0">
+    {% if property.units %}
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>Unit</th><th>Bedrooms</th><th>Bathrooms</th><th>Sq Ft</th>
+          <th>Rent/mo</th><th>Status</th><th>Tenant</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for unit in property.units %}
+      <tr>
+        <td class="fw-semibold">{{ unit.unit_number }}</td>
+        <td>{{ unit.bedrooms }}</td>
+        <td>{{ unit.bathrooms }}</td>
+        <td>{{ unit.square_feet if unit.square_feet else '—' }}</td>
+        <td>${{ "%.2f"|format(unit.rent_amount) }}</td>
+        <td><span class="badge badge-{{ unit.status }}">{{ unit.status|capitalize }}</span></td>
+        <td>
+          {% if unit.active_lease %}
+            <a href="{{ url_for('tenants.detail', id=unit.active_lease.tenant_id) }}">
+              {{ unit.active_lease.tenant.full_name }}
+            </a>
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          <a href="{{ url_for('properties.edit_unit', property_id=property.id, unit_id=unit.id) }}"
+             class="btn btn-outline-secondary btn-sm py-0 px-1"><i class="bi bi-pencil"></i></a>
+          <form action="{{ url_for('properties.delete_unit', property_id=property.id, unit_id=unit.id) }}"
+                method="post" class="d-inline" onsubmit="return confirm('Delete unit {{ unit.unit_number }}?');">
+            <button class="btn btn-outline-danger btn-sm py-0 px-1"><i class="bi bi-trash"></i></button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted p-3 mb-0">No units added yet.
+      <a href="{{ url_for('properties.new_unit', property_id=property.id) }}">Add a unit</a>.
+    </p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit Unit' if unit else 'New Unit' }}{% endblock %}
+{% block breadcrumb %}
+  <a href="{{ url_for('properties.list_properties') }}">Properties</a> /
+  <a href="{{ url_for('properties.detail', id=property.id) }}">{{ property.name }}</a> /
+  {{ 'Edit Unit' if unit else 'Add Unit' }}
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>{{ 'Edit Unit' if unit else 'Add Unit to ' + property.name }}</h1>
+</div>
+<div class="card stat-card p-4" style="max-width:560px;">
+  <form method="post">
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Unit Number *</label>
+      <input type="text" name="unit_number" class="form-control" required
+             value="{{ unit.unit_number if unit else '' }}" placeholder="e.g. 1A, 101, Unit 5">
+    </div>
+    <div class="row g-2 mb-3">
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Bedrooms</label>
+        <input type="number" name="bedrooms" class="form-control" min="0"
+               value="{{ unit.bedrooms if unit else 1 }}">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Bathrooms</label>
+        <input type="number" name="bathrooms" class="form-control" min="0" step="0.5"
+               value="{{ unit.bathrooms if unit else 1 }}">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Sq Feet</label>
+        <input type="number" name="square_feet" class="form-control" min="0"
+               value="{{ unit.square_feet if unit else 0 }}">
+      </div>
+    </div>
+    <div class="row g-2 mb-3">
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Monthly Rent ($) *</label>
+        <input type="number" name="rent_amount" class="form-control" min="0" step="0.01" required
+               value="{{ unit.rent_amount if unit else '' }}">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Status</label>
+        <select name="status" class="form-select">
+          {% for s in ['available', 'occupied', 'maintenance'] %}
+          <option value="{{ s }}" {{ 'selected' if unit and unit.status == s else '' }}>{{ s|capitalize }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-primary">
+        <i class="bi bi-check-circle me-1"></i>{{ 'Update Unit' if unit else 'Add Unit' }}
+      </button>
+      <a href="{{ url_for('properties.detail', id=property.id) }}" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Leases{% endblock %}
+{% block breadcrumb %}Leases{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+  <h1><i class="bi bi-file-text me-2"></i>Leases</h1>
+  <a href="{{ url_for('leases.new') }}" class="btn btn-primary">
+    <i class="bi bi-file-earmark-plus me-1"></i>New Lease
+  </a>
+</div>
+
+{% if leases %}
+<div class="card stat-card">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>#</th><th>Tenant</th><th>Unit</th><th>Start Date</th>
+          <th>End Date</th><th>Rent/mo</th><th>Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for lease in leases %}
+      <tr>
+        <td>{{ lease.id }}</td>
+        <td>
+          <a href="{{ url_for('tenants.detail', id=lease.tenant_id) }}">{{ lease.tenant.full_name }}</a>
+        </td>
+        <td>
+          {{ lease.unit.unit_number }}
+          <span class="text-muted small">({{ lease.unit.property.name }})</span>
+        </td>
+        <td>{{ lease.start_date }}</td>
+        <td>{{ lease.end_date }}</td>
+        <td>${{ "%.0f"|format(lease.rent_amount) }}</td>
+        <td><span class="badge badge-{{ lease.status }}">{{ lease.status|capitalize }}</span></td>
+        <td>
+          <a href="{{ url_for('leases.detail', id=lease.id) }}" class="btn btn-outline-primary btn-sm py-0 px-1">
+            <i class="bi bi-eye"></i>
+          </a>
+          <a href="{{ url_for('leases.edit', id=lease.id) }}" class="btn btn-outline-secondary btn-sm py-0 px-1">
+            <i class="bi bi-pencil"></i>
+          </a>
+          {% if lease.status == 'active' %}
+          <form action="{{ url_for('leases.terminate', id=lease.id) }}" method="post" class="d-inline"
+                onsubmit="return confirm('Terminate this lease?');">
+            <button class="btn btn-outline-warning btn-sm py-0 px-1" title="Terminate">
+              <i class="bi bi-x-circle"></i>
+            </button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="card stat-card text-center p-5">
+  <i class="bi bi-file-text display-4 text-muted mb-3"></i>
+  <h5 class="text-muted">No leases yet</h5>
+  <a href="{{ url_for('leases.new') }}" class="btn btn-primary mt-2">Create First Lease</a>
+</div>
+{% endif %}
+{% endblock %}
